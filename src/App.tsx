@@ -12,6 +12,7 @@ interface Todo {
 const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -20,19 +21,42 @@ const App: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputValue.trim() !== '') {
-      const newTodo: Todo = {
-        id: Date.now().toString(),
-        text: inputValue,
-        completed: false,
-        createdAt: format(new Date(), "dd/MM/yyyy HH:mm:ss"),
-      };
-      setTodos([...todos, newTodo]);
+      if (editingId !== null) {
+        setTodos(
+          todos.map((todo) => {
+            if (todo.id === editingId) {
+              return { ...todo, text: inputValue };
+            }
+            return todo;
+          })
+        );
+        setEditingId(null);
+      } else {
+        const newTodo: Todo = {
+          id: Date.now().toString(),
+          text: inputValue,
+          completed: false,
+          createdAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
+        };
+        setTodos([...todos, newTodo]);
+      }
       setInputValue('');
     }
   };
 
   const toggleTodo = (id: string) => {
-    setTodos(todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo ));
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo))
+    );
+  };
+
+  const editTodo = (id: string) => {
+    const todoToEdit = todos.find((todo) => todo.id === id);
+
+    if (todoToEdit) {
+      setInputValue(todoToEdit.text);
+      setEditingId(id);
+    }
   };
 
   const deleteTodo = (id: string) => {
@@ -57,11 +81,11 @@ const App: React.FC = () => {
             className="bg-indigo-500 hover:bg-indigo-700 text-md text-white py-1 px-2 rounded-md font-ubuntu"
             type="submit"
           >
-            Add
+            {editingId !== null ? 'Update' : 'Add'}
           </button>
         </div>
       </form>
-      <TodoList todos={todos} onDelete={deleteTodo} onComplete={toggleTodo} />
+      <TodoList todos={todos} onEdit={editTodo} onDelete={deleteTodo} onComplete={toggleTodo} />
     </div>
   );
 };

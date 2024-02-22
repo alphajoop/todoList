@@ -1,4 +1,4 @@
-import { Trash } from 'lucide-react';
+import { Edit, Trash } from 'lucide-react';
 
 interface Todo {
   id: string;
@@ -9,11 +9,15 @@ interface Todo {
 
 interface TodoItemProps {
   todo: Todo;
+  onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onComplete: (id: string) => void;
 }
 
-const TodoItem = ({ todo, onDelete, onComplete }: TodoItemProps) => {
+const TodoItem = ({ todo, onEdit, onDelete, onComplete }: TodoItemProps) => {
+  const handleEdit = () => {
+    onEdit(todo.id);
+  };
   return (
     <li className="py-4 flex justify-between items-center">
       <div className="flex items-center">
@@ -30,13 +34,29 @@ const TodoItem = ({ todo, onDelete, onComplete }: TodoItemProps) => {
           className={`ml-3 block text-gray-900 ${todo.completed ? 'line-through' : ''}`}
         >
           <span className="text-lg font-medium">{todo.text}</span>
-          <span className="text-sm font-light text-gray-500 block font-poppins">Create at {todo.createdAt} </span>
+          <span className="text-sm font-light text-gray-500 block font-poppins">
+            Create at {todo.createdAt}{' '}
+          </span>
         </label>
       </div>
-      <button className="text-red-500 hover:text-red-700" onClick={() => onDelete(todo.id)}>
-        <span className="hidden">delete</span>
-        <Trash size={20} />
-      </button>
+      <div>
+        <button
+          type="button"
+          className="text-yellow-500 hover:text-yellow-700 mr-2"
+          onClick={handleEdit}
+        >
+          <span className="hidden">Edit</span>
+          <Edit size={20} />
+        </button>
+        <button
+          type="button"
+          className="text-red-500 hover:text-red-700"
+          onClick={() => onDelete(todo.id)}
+        >
+          <span className="hidden">delete</span>
+          <Trash size={20} />
+        </button>
+      </div>
     </li>
   );
 };
